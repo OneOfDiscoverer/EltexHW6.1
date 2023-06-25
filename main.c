@@ -52,18 +52,25 @@ int main(int argc, char* argv[]){
             exit(EXIT_FAILURE);
         }
         newfork = fork();
+        if(newfork) 
+            printf("connected %d\n", new_socket);
     }
     while(1){
         for(int i = 0; i < sizeof buffer; i++){
             buffer[i] = 0;
         }
-        valread = read(new_socket, buffer, 1024);
+        if((valread = read(new_socket, buffer, 1024)) < 0){
+            perror("read");
+            break;
+        }
         printf("[%d]:%s\n",new_socket, buffer);
         strcat(buffer, "+ ");
-        send(new_socket, buffer, strlen(buffer), 0);
-        
+        if(send(new_socket, buffer, strlen(buffer), 0) < 0){
+            perror("send");
+            break;
+        }
     }
+    printf("[%d]: socket closed", new_socket);
     close(new_socket);
     return 0;
-
 }
